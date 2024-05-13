@@ -17,6 +17,7 @@ std::string loadShaderSrc(const char* filename);
 
 int main()
 {
+	// Test
 	std::cout << "Hello World!" << std::endl;
 
 	int success;
@@ -73,7 +74,7 @@ int main()
 	if (!success)
 	{
 		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cout << "Error with vertex shader comp.: " << infoLog << std::endl;
+		std::cout << "Error with vertex shader comp.: " << std::endl << infoLog << std::endl;
 	}
 
 
@@ -90,7 +91,7 @@ int main()
 	if (!success)
 	{
 		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		std::cout << "Error with fragment shader comp.: " << infoLog << std::endl;
+		std::cout << "Error with fragment shader comp.: " << std::endl << infoLog << std::endl;
 	}
 
 	//Create program
