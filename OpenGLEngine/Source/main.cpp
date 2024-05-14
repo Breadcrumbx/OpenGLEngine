@@ -61,7 +61,7 @@ int main()
 	// Shaders
 
 	// Compile vertex shader
-	unsigned int vertexShader;
+	GLuint vertexShader;
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	std::string vertShaderSrc = loadShaderSrc("Assets/vertex_core.glsl");
 	const GLchar* vertShader = vertShaderSrc.c_str();
@@ -79,7 +79,7 @@ int main()
 
 
 	//Compile fragment shader
-	unsigned int fragmentShader;
+	GLuint fragmentShader;
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	std::string fragShaderSrc = loadShaderSrc("Assets/fragment_core.glsl");
 	const GLchar* fragShader = fragShaderSrc.c_str();
@@ -95,7 +95,7 @@ int main()
 	}
 
 	//Create program
-	unsigned int shaderProgram;
+	GLuint shaderProgram;
 	shaderProgram = glCreateProgram();
 
 	glAttachShader(shaderProgram, vertexShader);
