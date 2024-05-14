@@ -99,7 +99,7 @@ int main()
 	shaderProgram = glCreateProgram();
 
 	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
+	glAttachShader(shaderProgram,fragmentShader);
 	glLinkProgram(shaderProgram);
 
 	// Check for error
@@ -120,7 +120,7 @@ int main()
 		0.5f, -0.5f, 0.0f
 	};
 	// VAO , VBO
-	unsigned int VAO, VBO;
+	GLuint VAO, VBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 
