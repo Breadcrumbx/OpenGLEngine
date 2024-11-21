@@ -9,11 +9,15 @@
 #include <sstream>
 #include <streambuf>
 #include <string>
+
+#include "Shader.h"
+
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 void processInput(GLFWwindow* window);
 
-std::string loadShaderSrc(const char* filename);
+//std::string loadShaderSrc(const char* filename);
 
 int main()
 {
@@ -59,93 +63,8 @@ int main()
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	// Shaders
-
-	// Compile vertex shader
-	GLuint vertexShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertShaderSrc = loadShaderSrc("Assets/vertex_core.glsl");
-	const GLchar* vertShader = vertShaderSrc.c_str();
-	glShaderSource(vertexShader, 1, &vertShader, NULL);
-	glCompileShader(vertexShader);
-
-	// Check for error
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-
-	if (!success)
-	{
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cout << "Error with vertex shader comp.: " << std::endl << infoLog << std::endl;
-	}
-
-
-	//Compile fragment shader
-	GLuint fragmentShaders[2];
-
-	fragmentShaders[0] = glCreateShader(GL_FRAGMENT_SHADER);
-	std::string fragShaderSrc = loadShaderSrc("Assets/fragment_core.glsl");
-	const GLchar* fragShader = fragShaderSrc.c_str();
-	glShaderSource(fragmentShaders[0], 1, &fragShader, NULL);
-	glCompileShader(fragmentShaders[0]);
-
-	// Check for error
-	glGetShaderiv(fragmentShaders[0], GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(fragmentShaders[0], 512, NULL, infoLog);
-		std::cout << "Error with fragment shader comp.: " << std::endl << infoLog << std::endl;
-	}
-
-	fragmentShaders[1] = glCreateShader(GL_FRAGMENT_SHADER);
-	fragShaderSrc = loadShaderSrc("Assets/fragment_core2.glsl");
-	fragShader = fragShaderSrc.c_str();
-	glShaderSource(fragmentShaders[1], 1, &fragShader, NULL);
-	glCompileShader(fragmentShaders[1]);
-
-	// Check for error
-	glGetShaderiv(fragmentShaders[1], GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(fragmentShaders[1], 512, NULL, infoLog);
-		std::cout << "Error with fragment shader comp.: " << std::endl << infoLog << std::endl;
-	}
-
-
-
-	//Create program
-	GLuint shaderPrograms[2];
-
-	shaderPrograms[0] = glCreateProgram();
-
-	glAttachShader(shaderPrograms[0], vertexShader);
-	glAttachShader(shaderPrograms[0], fragmentShaders[0]);
-	glLinkProgram(shaderPrograms[0]);
-
-	// Check for error
-	glGetProgramiv(shaderPrograms[0], GL_LINK_STATUS, &success);
-	if (!success)
-	{
-		glGetProgramInfoLog(shaderPrograms[0], 512, NULL, infoLog);
-		std::cout << "Linking error: " << infoLog << std::endl;
-	}
-
-	shaderPrograms[1] = glCreateProgram();
-
-	glAttachShader(shaderPrograms[1], vertexShader);
-	glAttachShader(shaderPrograms[1], fragmentShaders[1]);
-	glLinkProgram(shaderPrograms[1]);
-
-	// Check for error
-	glGetProgramiv(shaderPrograms[1], GL_LINK_STATUS, &success);
-	if (!success)
-	{
-		glGetProgramInfoLog(shaderPrograms[1], 512, NULL, infoLog);
-		std::cout << "Linking error: " << infoLog << std::endl;
-	}
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShaders[0]);
-	glDeleteShader(fragmentShaders[1]);
-
+	Shader shader = Shader("Assets/vertex_core.glsl", "Assets/fragment_core.glsl");
+	Shader shader2 = Shader("Assets/vertex_core.glsl", "Assets/fragment_core2.glsl");
 	// Vertex array
 	float vertices[] = {
 		// Positions			// colors
@@ -189,9 +108,8 @@ int main()
 	// Transformation matrix
 	glm::mat4 transform = glm::mat4(1.0f); // Identity 4x4 matrix
 	transform = glm::rotate(transform, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-	glUseProgram(shaderPrograms[0]);
-	glUniformMatrix4fv(glGetUniformLocation(shaderPrograms[0], "transform"), 1, GL_FALSE, glm::value_ptr(transform));
+	shader.Init();
+	shader.SetMat4("transform", transform);
 	//Render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -203,15 +121,13 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		transform = glm::rotate(transform, glm::radians((float)glfwGetTime() / 100.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		glUniformMatrix4fv(glGetUniformLocation(shaderPrograms[0], "transform"), 1, GL_FALSE, glm::value_ptr(transform));
-
+		shader.Init();
+		shader.SetMat4("transform", transform);
 
 		// Draw shapes
 		glBindVertexArray(VAO);
 
 		// First triangle
-		glUseProgram(shaderPrograms[0]);
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		// Second triangle
@@ -247,23 +163,23 @@ void processInput(GLFWwindow* window)
 	}
 }
 
-std::string loadShaderSrc(const char* filename)
-{
-	std::ifstream file;
-	std::stringstream buf;
-
-	std::string ret = "";
-
-	file.open(filename);
-	if (file.is_open())
-	{
-		buf << file.rdbuf();
-		ret = buf.str();
-	}
-	else
-		std::cout << "Could not open " << filename << std::endl;
-
-	file.close();
-
-	return ret;
-}
+//std::string loadShaderSrc(const char* filename)
+//{
+//	std::ifstream file;
+//	std::stringstream buf;
+//
+//	std::string ret = "";
+//
+//	file.open(filename);
+//	if (file.is_open())
+//	{
+//		buf << file.rdbuf();
+//		ret = buf.str();
+//	}
+//	else
+//		std::cout << "Could not open " << filename << std::endl;
+//
+//	file.close();
+//
+//	return ret;
+//}
