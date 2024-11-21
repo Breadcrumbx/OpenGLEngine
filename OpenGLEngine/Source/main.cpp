@@ -22,9 +22,6 @@ int main()
 	// Test
 	std::cout << "Hello World!" << std::endl;
 
-	int success;
-	char infoLog[512];
-
 	// Initialise GLFW
 	glfwInit();
 
