@@ -17,8 +17,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 void processInput(GLFWwindow* window);
 
-//std::string loadShaderSrc(const char* filename);
-
 int main()
 {
 	// Test
@@ -110,6 +108,12 @@ int main()
 	transform = glm::rotate(transform, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	shader.Init();
 	shader.SetMat4("transform", transform);
+
+	glm::mat4 transform2 = glm::mat4(1.0f);
+	transform2 = glm::scale(transform2, glm::vec3(1.5f));
+	transform2 = glm::rotate(transform2, glm::radians(15.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	shader2.Init();
+	shader2.SetMat4("transform", transform);
 	//Render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -128,7 +132,12 @@ int main()
 		glBindVertexArray(VAO);
 
 		// First triangle
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+
+		transform2 = glm::rotate(transform2, glm::radians((float)glfwGetTime() / -100.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		shader2.Init();
+		shader2.SetMat4("transform", transform2);
+		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void*)(3 * sizeof(unsigned int)));
 
 		// Second triangle
 		//glUseProgram(shaderPrograms[1]);
@@ -162,24 +171,3 @@ void processInput(GLFWwindow* window)
 		glfwSetWindowShouldClose(window,true);
 	}
 }
-
-//std::string loadShaderSrc(const char* filename)
-//{
-//	std::ifstream file;
-//	std::stringstream buf;
-//
-//	std::string ret = "";
-//
-//	file.open(filename);
-//	if (file.is_open())
-//	{
-//		buf << file.rdbuf();
-//		ret = buf.str();
-//	}
-//	else
-//		std::cout << "Could not open " << filename << std::endl;
-//
-//	file.close();
-//
-//	return ret;
-//}
