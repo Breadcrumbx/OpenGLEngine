@@ -132,8 +132,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\IO\Keyboard.cpp" />
     <ClCompile Include="Library\glad.c" />
     <ClCompile Include="Library\stb.cpp" />
+    <ClCompile Include="Source\IO\Mouse.cpp" />
     <ClCompile Include="Source\Shader.cpp" />
     <ClCompile Include="Source\main.cpp" />
   </ItemGroup>
@@ -143,11 +145,14 @@
     <None Include="Assets\vertex_core.glsl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\IO\Keyboard.h" />
+    <ClInclude Include="Source\IO\Mouse.h" />
     <ClInclude Include="Source\Shader.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\img1.jpg" />
     <Image Include="Assets\img2.jpg" />
+    <Image Include="Assets\img2.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

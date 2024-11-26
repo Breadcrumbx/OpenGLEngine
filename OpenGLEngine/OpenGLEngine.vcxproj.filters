@@ -27,6 +27,12 @@
     <ClCompile Include="Source\Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\IO\Keyboard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IO\Mouse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\fragment_core.glsl" />
@@ -37,12 +43,21 @@
     <ClInclude Include="Source\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\IO\Keyboard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\IO\Mouse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\img1.jpg">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Assets\img2.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\img2.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

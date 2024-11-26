@@ -14,12 +14,14 @@
 
 #include "Shader.h"
 
-
+// Global variables
+float alpha = 0.f;
+bool rotation = false;
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 void processInput(GLFWwindow* window);
 
-void testInput(GLFWwindow* window, GLuint texture1, GLuint texture2);
+//void testInput(GLFWwindow* window, GLuint texture1, GLuint texture2);
 int main()
 {
 	// Test
@@ -62,18 +64,18 @@ int main()
 
 	// Shaders
 	Shader shader = Shader("Assets/vertex_core.glsl", "Assets/fragment_core.glsl");
-	Shader shader2 = Shader("Assets/vertex_core.glsl", "Assets/fragment_core2.glsl");
+	//Shader shader2 = Shader("Assets/vertex_core.glsl", "Assets/fragment_core2.glsl");
 	// Vertex array
 	float vertices[] = {
-		// Positions			// colors				TexCoord
+		// Positions				// Colors			TexCoord
 		//-0.25f, -0.5f, 0.0f,		1.0f, 1.0f, 0.5f,
 		//0.15f, 0.0f, 0.0f,		0.5f, 1.0f, 0.75f,
 		//0.0f, 0.5f, 0.0f,		0.6f, 1.0f, 0.2f,
 		//0.5f, -0.4f, 0.0f,		1.0f, 0.2f, 1.0f
-		-0.5f, -0.5f, 0.0f,			1.0f, 1.0f, 0.5f,	0.0f, 0.0f,
-		-0.5f, 0.5f, 0.0f,			0.5f, 1.0f, 0.75f,	0.0f, 1.0f,
-		0.5f, -0.5f, 0.0f,			0.6f, 1.0f, 0.2f,	1.0f, 0.0f,
-		0.5f, 0.5f, 0.0f,			1.0f, 0.2f, 1.0f,	1.0f, 1.0f
+		-0.5f, -0.5f, 0.0f,			1.0f, 1.0f, 0.5f,	0.0f, 0.0f, // 0
+		-0.5f, 0.5f, 0.0f,			0.5f, 1.0f, 0.75f,	0.0f, 1.f, // 1
+		0.5f, -0.5f, 0.0f,			0.6f, 1.0f, 0.2f,	1.0f, 0.0f, // 2
+		0.5f, 0.5f, 0.0f,			1.0f, 0.2f, 1.0f,	1.0f, 1.0f	// 3
 
 	};
 
@@ -108,22 +110,23 @@ int main()
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
-	// Texture
+	// Textures
 	GLuint texture1, texture2;
 
 	glGenTextures(1,&texture1);
 	glBindTexture(GL_TEXTURE_2D, texture1);
 
+	// Texture parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // x coordinates of texture
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // y coordinates of texture
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// Load image
 	int width, height, nChannels;
 	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data = stbi_load("Assets/img1.jpg", &width, &height, &nChannels, 0);
+	unsigned char* data = stbi_load("Assets/img.jpg", &width, &height, &nChannels, 0);
 
 	if (data)
 	{
@@ -139,11 +142,11 @@ int main()
 	glGenTextures(1, &texture2);
 	glBindTexture(GL_TEXTURE_2D, texture2);
 
-	data = stbi_load("Assets/img2.png", &width, &height, &nChannels, 0);
+	data = stbi_load("Assets/img3.jpg", &width, &height, &nChannels, 0);
 
 	if (data)
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
@@ -151,22 +154,28 @@ int main()
 
 	stbi_image_free(data);
 
+	//
 
 	shader.Init();
 
 	shader.SetInt("texture1", 0);
 	shader.SetInt("texture2", 1);
+
 	// Set up EBO
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
 	// Transformation matrix
+	glm::mat4 transform = glm::mat4(1);
+	transform = glm::rotate(transform, glm::radians(0.0f), glm::vec3(0, 0, 1));
+	shader.SetMat4("transform", transform);
+
+	shader.SetFloat("alpha", alpha);
 	//Render loop
 	while (!glfwWindowShouldClose(window))
 	{
 		// Process Input
 		processInput(window);
-
+		//testInput(window, shader, alpha);
 		// Render
 		glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -180,7 +189,14 @@ int main()
 		glBindVertexArray(VAO);
 
 		// First triangle
+		/*if (rotation)
+		{
+			transform = glm::rotate(transform, glm::radians((float)glfwGetTime() / 150.f), glm::vec3(0, 0, 1));
+			shader.SetMat4("transform", transform);
+		}*/
+		shader.SetFloat("alpha", alpha);
 		shader.Init();
+		
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		//shader2.Init();
 		//glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void*)(3 * sizeof(unsigned int)));
@@ -216,18 +232,24 @@ void processInput(GLFWwindow* window)
 	{
 		glfwSetWindowShouldClose(window,true);
 	}
-}
-
-void testInput(GLFWwindow* window, GLuint texture1, GLuint texture2)
-{
-	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+	else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture1);
+		alpha += 0.05f;
+		if (alpha > 1.0f)
+			alpha = 1.0f;
 	}
-	else if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture2);
+		alpha -= 0.05f;
+		if (alpha < 0.0f)
+			alpha = 0.f;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+	{
+		rotation = true;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
+	{
+		rotation = false;
 	}
 }
