@@ -6,17 +6,20 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <stb/stb_image.h>
 
-
 #include <fstream>
 #include <sstream>
 #include <streambuf>
 #include <string>
 
 #include "Shader.h"
-
+#include "IO/Keyboard.h"
+#include "IO/Mouse.h"
 // Global variables
 float alpha = 0.f;
 bool rotation = false;
+
+glm::mat4 movement = glm::mat4(1.0f);
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 void processInput(GLFWwindow* window);
@@ -26,7 +29,7 @@ int main()
 {
 	// Test
 	std::cout << "Hello World!" << std::endl;
-
+	
 	// Initialise GLFW
 	glfwInit();
 
@@ -36,8 +39,11 @@ int main()
 
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+	int _width, _height;
+	_width = 800;
+	_height = 600;
 	// Window
-	GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGLEngine", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(_width, _height, "OpenGLEngine", NULL, NULL);
 	// Check if window is created or not
 	if (window == NULL)
 	{
@@ -57,10 +63,17 @@ int main()
 	}
 
 	// Tells OpenGL the size of the rendering window so it knows how to display data / coordinates with respect to the window
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, _width, _height);
 
-
+	// Callbacks
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	// Keyboard
+	glfwSetKeyCallback(window, Keyboard::KeyCallback);
+
+	// Mouse
+	glfwSetCursorPosCallback(window, Mouse::CursorPositionCallback);
+	glfwSetMouseButtonCallback(window, Mouse::MouseButtonCallback);
+	glfwSetScrollCallback(window, Mouse::MouseWheelCallback);
 
 	// Shaders
 	Shader shader = Shader("Assets/vertex_core.glsl", "Assets/fragment_core.glsl");
@@ -188,14 +201,16 @@ int main()
 		// Draw shapes
 		glBindVertexArray(VAO);
 
+		shader.Init();
+
 		// First triangle
-		/*if (rotation)
+		if (rotation)
 		{
 			transform = glm::rotate(transform, glm::radians((float)glfwGetTime() / 150.f), glm::vec3(0, 0, 1));
 			shader.SetMat4("transform", transform);
-		}*/
+		}
+		shader.SetMat4("transform", movement);
 		shader.SetFloat("alpha", alpha);
-		shader.Init();
 		
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		//shader2.Init();
@@ -228,28 +243,45 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void processInput(GLFWwindow* window)
 {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	if (Keyboard::IsKeyDown(GLFW_KEY_ESCAPE))
 	{
 		glfwSetWindowShouldClose(window,true);
 	}
-	else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	if (Keyboard::Key(GLFW_KEY_UP))
 	{
+		std::cout << "UP PRESSED" << std::endl;
 		alpha += 0.05f;
 		if (alpha > 1.0f)
 			alpha = 1.0f;
 	}
-	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	if (Keyboard::Key(GLFW_KEY_DOWN))
 	{
+		std::cout << "DOWN PRESSED" << std::endl;
 		alpha -= 0.05f;
 		if (alpha < 0.0f)
 			alpha = 0.f;
 	}
-	else if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+	if (Keyboard::IsKeyDown(GLFW_KEY_R))
 	{
-		rotation = true;
+		std::cout << "Rotate" << std::endl;
+		rotation = !rotation;
 	}
-	else if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
+
+
+	if (Keyboard::Key(GLFW_KEY_W))
 	{
-		rotation = false;
+		movement = glm::translate(movement, glm::vec3(0.f, 0.0001f, 0.0f));
+	}
+	if (Keyboard::Key(GLFW_KEY_S))
+	{
+		movement = glm::translate(movement, glm::vec3(0.f, -0.0001f, 0.0f));
+	}
+	if (Keyboard::Key(GLFW_KEY_A))
+	{
+		movement = glm::translate(movement, glm::vec3(-0.0001f, 0.f, 0.0f));
+	}
+	if (Keyboard::Key(GLFW_KEY_D))
+	{
+		movement = glm::translate(movement, glm::vec3(0.0001f, 0.f, 0.0f));
 	}
 }

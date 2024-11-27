@@ -98,20 +98,22 @@ double Mouse::GetMouseScrollDY()
 
 bool Mouse::Button(int button)
 {
-	return false;
+	return buttons[button];
 }
 
 bool Mouse::ButtonChanged(int button)
 {
-	return false;
+	bool ret = buttonsChanged[button];
+	buttonsChanged[button] = false;
+	return ret;
 }
 
 bool Mouse::IsButtonUp(int button)
 {
-	return false;
+	return !buttons[button] && ButtonChanged(button);
 }
 
 bool Mouse::IsButtonDown(int button)
 {
-	return false;
+	return buttons[button] && ButtonChanged(button);
 }
